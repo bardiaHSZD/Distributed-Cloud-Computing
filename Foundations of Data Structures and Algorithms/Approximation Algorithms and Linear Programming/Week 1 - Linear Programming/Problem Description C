@@ -1,6 +1,22 @@
-Let us consider a variant of the optimal transportation problem where we have the same data including the starting and desired configurations.
+We would like to write a python code to find our optimal transport problem. Suppose we have piles of different sizes of raw material at various locations in a worksite.
 
-Source locations given as coordinates and weights :  (xi,yi),wi,  i=1,…,n.
+The piles of raw material are given in a comma separated format as :
+
+ID, Coordinates, Weight
+i, (xi, yi), wi
+
+where: 0<=i<=n-1.
+
+We need to plan to redistribute this pile to a new configuration that is also given in terms of the desired coordinates and weights in a comma separated format as:
+
+ID, Coordinates, Weight
+i, (x'j, y'j), w'j
+
+where: 0<=j<=m-1
+
+Let us consider we have the starting and desired configurations:
+
+Source locations given as coordinates and weights:  (xi,yi),wi,  i=1,…,n.
 Target locations given as coordinates and weights:  (x'j,y'j),w'j,  j=1,…,m.
 
 The cost of transporting a unit weight from source location  i to target location  j is given by the Euclidean distance:
@@ -20,21 +36,51 @@ Formulate a LP that will set prices so that we maximize the revenue while satisf
 
 Problem data is same as before:
 
-source_coords: List of (x,y) pairs of coordinates for the source locations.
-The size of the list is the number of source locations  n
- .
-source_weights: List of  wi
-  weights for the source location.
-The size of the list equals number of source locations  n
-  and  i𝑡ℎ
-  element of this list is the weight corresponding to the  i𝑡ℎ
-  coordinate in the list source_coords.
+1. source_coords: List of (x,y) pairs of coordinates for the source locations.
+2. The size of the list is the number of source locations n.
+3. source_weights: List of wi weights for the source location.
+4. The size of the list equals number of source locations n and i𝑡ℎ element of this list is the weight corresponding to the i𝑡ℎ coordinate in the list source_coords.
+
 Similarly we have two lists dest_coords and dest_weights. Note that sum(source_weights) must equal sum(dest_weights).
 
 Your function should return the solution as pair of two lists: (source_prices, target_prices). source_prices should have length n and target_prices should have length m.
 
 
-Write a python code using Pulp library to solve the problem by completing calculate_optimal_transport_plan the followiing code:
+Write a python code using Pulp library to solve the problem by completing compute_optimal_prices the followiing code:
+
+
+from pulp import *
+from math import sqrt
+def calculate_distance(a, b):
+    (xa, ya) = a
+    (xb, yb) = b
+    return sqrt( (xa- xb)**2 + (ya - yb)**2)
+
+def compute_optimal_prices(source_coords, source_weights, dest_coords, dest_weights):
+    n = len(source_coords)
+    assert (n== len(source_weights))
+    m = len(dest_coords)
+    assert (m == len(dest_weights))
+    assert( sum(source_weights) == sum(dest_weights)) 
+    # TODO: 1. make the decision variables.
+    #       2. the objective function 
+    #       3. the constraints 
+    #
+    
+    lpModel = LpProblem('Transportation', LpMaximize)
+
+
+    lpModel.solve()
+    source_prices = [v.varValue for v in source_vars]
+    dest_prices = [v.varValue for v in dest_vars]
+    return (source_prices, dest_prices)
+
+
+
+
+
+
+
 
 
 
