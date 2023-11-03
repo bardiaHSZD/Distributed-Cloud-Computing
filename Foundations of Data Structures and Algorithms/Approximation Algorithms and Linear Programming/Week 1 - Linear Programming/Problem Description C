@@ -1,0 +1,40 @@
+Let us consider a variant of the optimal transportation problem where we have the same data including the starting and desired configurations.
+
+Source locations given as coordinates and weights :  (xi,yi),wi,  i=1,…,n.
+Target locations given as coordinates and weights:  (x'j,y'j),w'j,  j=1,…,m.
+
+The cost of transporting a unit weight from source location  i to target location  j is given by the Euclidean distance:
+Di,j = sqrt((xi−x'j)^2+(yi−y'j)^2)
+ 
+Instead of deriving the transportation plan, we will focus on setting purchase/sale prices at the source and target locations respectively.
+
+Suppose, we are allowed to set prices at the source and target locations for the material such that at each source location  i we set a price  pi per unit of the material and at each target location  j, we set a price  p'j per unit of the material. However, we cannot set the prices arbitrarily. We have to follow the following constraint:
+
+For each source location  i and target location  j the price difference  p'j−pi must be less than or equal to  Di,j, which means p'j−pi≤Di,j.
+
+Once the prices have been setup at the source and target locations, the revenue we earn by transporting goods is given by: Sum(p'j*w'j) for j=1 to m − Sum(pi*wi) for i=1 to n.
+ 
+The first term is what we get by selling at the target location and the second term is what we get from buying at the source locations.
+
+Formulate a LP that will set prices so that we maximize the revenue while satisfying the "economic" constraint above.
+
+Problem data is same as before:
+
+source_coords: List of (x,y) pairs of coordinates for the source locations.
+The size of the list is the number of source locations  n
+ .
+source_weights: List of  wi
+  weights for the source location.
+The size of the list equals number of source locations  n
+  and  i𝑡ℎ
+  element of this list is the weight corresponding to the  i𝑡ℎ
+  coordinate in the list source_coords.
+Similarly we have two lists dest_coords and dest_weights. Note that sum(source_weights) must equal sum(dest_weights).
+
+Your function should return the solution as pair of two lists: (source_prices, target_prices). source_prices should have length n and target_prices should have length m.
+
+
+Write a python code using Pulp library to solve the problem by completing calculate_optimal_transport_plan the followiing code:
+
+
+

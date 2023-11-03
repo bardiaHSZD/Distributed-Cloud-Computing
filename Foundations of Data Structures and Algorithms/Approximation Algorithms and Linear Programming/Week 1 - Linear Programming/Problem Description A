@@ -1,0 +1,33 @@
+Please write a python function using PULP that solves a linear programmming problem in investing in a portfolio of various stocks where we wish to maximize the overall return (profit/gain) on the investment but at the same time we do not want our investment to be diversified and the Price-to-Earnings (PE) ratio to be not too high, etc.. in order to mitigate risk. In this problem, we will develop a portfolio using linear programming.
+
+The total budget available is given to us as an input  B>0. 
+
+We are also given a set of possible stocks and the corresponding data. The data for each investment includes: A) Expected return of each investment. B) The current price/unit of the stock.
+C) The last earnings/unit of the stock. D) The market category of the investment: Commodities, Tech, HealthCare
+
+The goal is to formulate a linear programming problem for the given data in order to maximize the overall expected return subject to the following constraints:
+
+A) The total cost of the investment must be less than or equal to  𝐵. 
+B) We are only allowed by buy non-negative ( ≥0) amounts of each stock. You can buy fractions of a stock.
+C) The investment must be balanced meaning that it should: C-1) The amount invested in each market category should be less than or equal to 2/3 of the total budget. C-2)The amount invested in each market category should be at least 1/6 of the total budget.
+
+D) The price to earnings ratio of the overall portfolio should not exceed  15.
+
+
+
+
+Suppose Suppose we have the following six investments with IDs 1 -6 and the data (this data is purely fictional) as shown below, in a comma sperated format:
+
+ID, Stock, Price/Unit, Expected Return/Unit, Earnings/Unit, Category
+1, "IBM", 129, 25, 1.9, "Tech"
+2, "META", 286, 20, 8.1, "Tech"
+3, "Astera-Zeneca", 72.29, 3, 1.5, "Health"
+4, "Pfizer", 38, 1.5, 5, "Health"
+5, "Uniliver", 52, 3, 2.5, "Commodities"
+6, "Proctor-Gamble", 148, 4.5, 5.2, "Commodities"
+
+
+
+Let $x_1, \ldots, x_6$ be the decision variables wherein $x_i$ is the number of units of stock ID $i$ purchased. 
+  
+ Write down the expression for the objective function in terms of $x_1, \ldots, x_6$. Also, specify if we are to maximize or minimize it.
