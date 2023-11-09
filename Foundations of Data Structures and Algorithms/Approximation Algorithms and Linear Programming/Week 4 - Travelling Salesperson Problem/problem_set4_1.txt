@@ -1,0 +1,62 @@
+Here is code implementation for the travel sales person using Pulp library:
+from pulp import *
+
+def mtz_encoding_tsp(n, cost_matrix):
+    assert len(cost_matrix) == n, f'Cost matrix is not {n}x{n}'
+    assert all(len(cj) == n for cj in cost_matrix), f'Cost matrix is not {n}x{n}'
+    # create our encoding variables
+    binary_vars = [ # add a binary variable x_{ij} if i not = j else simply add None
+        [ LpVariable(f'x_{i}_{j}', cat='Binary') if i != j else None for j in range(n)] 
+        for i in range(n) ]
+    # add time stamps for ranges 1 .. n (skip vertex 0 for timestamps)
+    time_stamps = [LpVariable(f't_{j}', lowBound=0, upBound=n, cat='Continuous') for j in range(1, n)]
+    # create the problem
+    prob = LpProblem('TSP-MTZ', LpMinimize)
+    # create add the objective function 
+    objective_function = lpSum( [ lpSum([xij*cj if xij != None else 0 for (xij, cj) in zip(brow, crow) ])
+                           for (brow, crow) in zip(binary_vars, cost_matrix)] )
+    
+    prob += objective_function 
+    
+    # add the degree constraints
+    for i in range(n):
+        # Exactly one leaving variable
+        prob += lpSum([xj for xj in binary_vars[i] if xj != None]) == 1
+        # Exactly one entering
+        prob += lpSum([binary_vars[j][i] for j in range(n) if j != i]) == 1
+    # add time stamp constraints
+    for i in range(1,n):
+        for j in range(1, n):
+            if i == j: 
+                continue
+            xij = binary_vars[i][j]
+            ti = time_stamps[i-1]
+            tj = time_stamps[j -1]
+            prob += tj >= ti + xij - (1-xij)*(n+1) # add the constraint
+    # Done: solve the problem
+    status = prob.solve(PULP_CBC_CMD(msg=False)) # turn off messages
+    assert status == constants.LpStatusOptimal, f'Unexpected non-optimal status {status}'
+    # Extract the tour
+    tour = [0]
+    tour_cost = 0
+    while len(tour) < n:
+        i = tour[-1]
+        # find all indices j such that x_ij >= 0.999 
+        sols = [j for (j, xij) in enumerate(binary_vars[i]) if xij != None and xij.varValue >= 0.999]
+        assert len(sols) == 1, f'{sols}' # there better be just one such vertex or something has gone quite wrong
+        j = sols[0] # extract the lone solutio 
+        tour_cost = tour_cost + cost_matrix[i][j] # add to the tour cost
+        tour.append(j) # append to the tour
+        assert j != 0
+    i = tour[-1]
+    tour_cost = tour_cost + cost_matrix[i][0]
+    return tour, tour_cost
+Propose an algorithm when we have more than one salespeople, i.e. k>=1. The 
+salespeople who must start from vertex  0 of 
+the graph (presumably the location of the sales office) and together visit 
+every location in the graph, each returning back to vertex  0 . Each location 
+must be visited exactly once by some salesperson in the team. Therefore, other 
+than vertex  0 (the start/end vertex of every salesperson's tour), no two salesperson 
+tours have a vertex in common. Also, all  k salespeople must be employed in the tour. 
+In other words, if we have  k=3 then each salesperson must start at  0 and visit a 
+sequence of one or more vertices and come back to  0 . No salesperson can be "idle".
