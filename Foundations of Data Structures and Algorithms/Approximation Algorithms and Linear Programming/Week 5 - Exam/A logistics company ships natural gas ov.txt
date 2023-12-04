@@ -1,0 +1,118 @@
+A logistics company ships natural gas over trains between different places. The places form the vertices of an undirected graph and each (bi-directional) edge between two vertices denotes a rail line over which fuel can be transported by train in either direction.  We associate with each edge a cost/unit that specifies how much it costs to send one unit of oil between the two end points (in either direction). Some of the vertices are oil producing vertices where there is a net supply of oil whereas the other vertices are demand vertices where there is a net demand for oil. We will write demand as negative supply.
+
+As an example involving five cities with the net supplies and cost of transportation between each two cities as: 
+
+Vertices:
+[0, 1, 2,  3, 4]
+
+Supplies:
+[100, -55, 35, -40, -25]
+
+edge_list: 
+[
+(0, 1, 5),
+(0, 3, 6),
+(0, 4, 9),
+(1, 3, 4),
+(1, 2, 3), 
+(3, 2, 7),
+(2, 4, 8),
+]
+
+
+In Houston and Baltimore, there is a net supply whereas Chicago, Philadelphia and Charleston have net demands (negative supplies). 
+
+We wish to find out how much oil to transport along each of the rail lines (edges of the graph)  so that the following constraints are met and the total transportation cost is minimized.
+
+Constraints:
+
+Constraint #1: For each city with a net oil demand, the total inflow of oil into the city minus the total outflow of oil from the city must be equal to the total demand of the city.
+
+constraint #2: For each city with a net oil supply, the total outflow of oil from the city minus the total inflow into the city must be less than or equal to the net supply available for the city. 
+  
+For instance, consider the following shipping schedule:
+
+We ship 95 units of oil from Houston to Chicago, 40 units from Chicago to Philly, and 25 units of oil from Baltimore to Charleston. 
+
+  - At Houston there is a net supply of 100. The total outflow is 95 and total inflow is 0. We have 95<=100.
+  - At Chicago, there is a net demand of 55. Total inflow is 95 and total outflow is 40. Thus 95 - 40 = 55.
+
+The total transportation cost is:
+95 * 5 + 40 * 4 + 25 * 8 = 835. 
+
+-----------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------
+
+Implement a linear programming solution using Pulp library to solve the transportation problem. You are given as input: 
+Input #1: Graph with vertices V and edges E. Each undirected edge (i,j) can be regarded as two edges (i,j) and (j,i) in opposite directions. 
+Input #2: A cost "c" associated with each edge "e" such that c(edge)>=0 and is the cost of transporting one unit of oil along the edge.
+Input #3: A map "s" mapping each vertex "v" to net supply s(v). A negative s(v) is considered a demand and a positive s(v) means supply.
+  
+
+To implement, complete the python function "calculateOptimalPlan" that takes inputs:
+  "n": number of vertices which are numbered between 0 to n-1;
+  "edge_list": a list of undirected edges (i,j,c) between vertices wherein "c >= 0" is the cost of flow along the edge; 
+  "supplies": a list of size $n$ where "supplies[j]" is the supply (or demand if negative) at the jth vertex.
+  
+Requirements:  
+
+Your function must return a dictionary that maps edges "(i,j)" to the flow along the edge in the direction i towards j.
+  Requirement #1: All flows  must be non-negative.
+  
+  Requirement #2: If you specify a flow from $j$ to $i$, then your dictionary must have the key "(j,i)" mapped to the non-negative flow from j towards i.
+  
+  Requirement #3: If an edge is not present in the dictionary, we will take the flow along it to be zero.
+
+Here is the "calculateOptimalPlan" function to be completed:
+
+from pulp import *
+def calculateOptimalPlan(n, edge_list, supplies, debug=False):
+    assert n >= 1
+    assert all( 0 <= i < n and 0 <= j < n and i != j and c >= 0 for (i,j,c) in edge_list)
+    assert len(supplies) == n
+
+
+
+And here is the function that tests functionality of "calculateOptimalPlan" :
+
+def test_solution(n, edge_list, supplies, solution_map, expected_cost):
+    cost = 0
+    outflows = [0]*n
+    inflows = [0]*n
+    for (i,j,c) in edge_list:
+        if (i,j) in solution_map: 
+            flow = solution_map[(i,j)]
+            cost += c * flow
+            assert flow >= 0, f'flow on edge {(i,j)} is negative --> {flow}'
+            outflows[i] += flow 
+            inflows[j] += flow
+        elif (j,i) in solution_map:
+            flow = solution_map[(j,i)]
+            cost += c * flow
+            assert flow >= 0, f'flow on edge {(j,i)} in negative --> {flow}'
+            outflows[j] += flow
+            inflows[i] += flow 
+    for (i, s) in enumerate(supplies):
+        if s > 0:
+            assert outflows[i]  - inflows[i] <= s, f'Vertex {i} constraint violated: total outflow = {outflows[i]} inflow = {inflows[i]}, supply = {s}'
+        else:
+            assert abs(inflows[i]-outflows[i] + s) <= 1E-2,f'Vertex{i} constraint violated: inflow = {inflows[i]} outflow={outflows[i]}, demand = {-s}'
+    if expected_cost != None:
+        assert abs(expected_cost - cost) <= 1E-02, f'Expected cost: {expected_cost}, your algorithm returned: {cost}'
+    print('Test Passed!')
+
+n = 5
+edge_list = [
+    (0,1, 5), (0, 3, 3), (0, 4, 4),
+    (1,2, 9), (1,4, 6),
+    (2,3,8),
+    (3,4,7)
+]
+supplies = [-55, 100, -25, 35, -40]
+sol_map = calculateOptimalPlan(n, edge_list, supplies, debug=True)
+test_solution(n, edge_list, supplies, sol_map,670)
+
+
+
+
+

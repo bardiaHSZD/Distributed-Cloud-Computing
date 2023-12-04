@@ -1,0 +1,56 @@
+We would like to implement  a heuristic algorithm, not a mixed integer linear programming, with the following arguments:
+
+Input #1: "n" the number of variables 
+
+Input #2: "m" the number of inequalities 
+
+Input #3: "c_matrix" which is a list of list of coefficients of the LHS of inequalities,
+in a form like this:
+
+c_matrix = 
+[
+    [c11,...,c1n],
+    [c21,...,c2n],
+    ...
+    [cm1,...,cmn],
+]
+
+The goal is to create a heuristic algorithm that satisfies at least m/2 of constraints.
+
+Step 1: 
+Generate 𝑛 random numbers 𝑟1,…,𝑟𝑛 in some range [−1,1] and simply substitute: 
+𝑥1=𝑟1*𝑥,
+𝑥2=𝑟2*𝑥,
+…,
+𝑥𝑛=𝑟𝑛*𝑥 
+where 𝑥 is a new unknown variable. 
+
+Step2:
+Reformulate the problem based on x, instead of xi.  
+
+Step3:
+Compute the matrix product of c_matrix*[r1,...rn] to come up with vector "coefs". The new set of inequalities becomes [coefs_1,...,coefs_m]*x<=[d1,...,dm]. Now reformulate the inequalities to: [coefs_1/abs(coefs_1),...,coefs_m/abs(coefs_m)]*x<=[d1/abs(coefs_1),...,dm/abs(coefs_m)]
+
+Step 4:
+Partition the new inequalities into two subsets: 
+Subset 1: all the inequalities with coefs_i/abs(coefs) == 1.
+Subset 2: all the inequalities with coefs_i/abs(coefs) == -1.
+
+Step 5:
+set 𝑥=max(𝑑1/coefs_1,…,𝑑𝑚/coefs_m).
+
+Complete function below to implement the algorithm:
+
+from random import uniform 
+
+def computeApproximateSolution(n, m, c_matrix, d_values):
+    assert n >= 1
+    assert len(c_matrix) == m
+    assert all(len(c_list) == n for c_list in c_matrix)
+    assert len(d_values) == m
+    r_values = [uniform(-1, 1) for i in range(n)]
+    # your code here
+
+Your function should return a pair:  (𝑘,[𝑥1,…,𝑥𝑛]). In which: 
+- 𝑘 is the number of inequalities satisfied by your optimal solution
+- [𝑥1,…,𝑥𝑛]  is a list denoting the values of 𝑥1,…,𝑥𝑛 that satisfy the 𝑘 inequalities.
